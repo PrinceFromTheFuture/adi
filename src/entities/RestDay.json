@@ -1,1 +1,56 @@
-{}
+{
+    "name": "RestDay",
+    "type": "object",
+    "properties": {
+      "rest_date": {
+        "type": "string",
+        "format": "date",
+        "description": "Date of the rest day"
+      },
+      "reason": {
+        "type": "string",
+        "enum": [
+          "scheduled_rest",
+          "injury",
+          "illness",
+          "personal",
+          "travel"
+        ],
+        "description": "Reason for rest day"
+      },
+      "notes": {
+        "type": "string",
+        "description": "Additional notes about the rest day"
+      }
+    },
+    "required": [
+      "rest_date",
+      "reason"
+    ],
+    "rls": {
+      "read": {
+        "$or": [
+          {
+            "created_by": "{{user.email}}"
+          },
+          {
+            "user_condition": {
+              "role": "admin"
+            }
+          }
+        ]
+      },
+      "write": {
+        "$or": [
+          {
+            "created_by": "{{user.email}}"
+          },
+          {
+            "user_condition": {
+              "role": "admin"
+            }
+          }
+        ]
+      }
+    }
+  }

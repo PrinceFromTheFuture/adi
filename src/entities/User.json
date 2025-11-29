@@ -1,1 +1,38 @@
-{}
+{
+    "name": "User",
+    "type": "object",
+    "properties": {
+      "target_weight": {
+        "type": "number",
+        "description": "משקל יעד בק\"ג"
+      },
+      "current_weight": {
+        "type": "number",
+        "description": "משקל נוכחי בק\"ג"
+      },
+      "height": {
+        "type": "number",
+        "description": "גובה בס\"מ"
+      },
+      "gender": {
+        "type": "string",
+        "enum": ["male", "female"],
+        "description": "מגדר"
+      },
+      "activity_level": {
+        "type": "string",
+        "enum": ["sedentary", "lightly_active", "moderately_active", "very_active"],
+        "description": "רמת פעילות גופנית"
+      },
+      "profile_image": {
+        "type": "string",
+        "description": "תמונת פרופיל"
+      },
+      "daily_water_goal": {
+        "type": "number",
+        "description": "יעד שתייה יומי במ\"ל",
+        "default": 2000
+      }
+    },
+    "required": ["target_weight", "current_weight", "height", "gender", "activity_level", "profile_image"]
+  }

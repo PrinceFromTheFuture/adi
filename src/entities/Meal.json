@@ -1,1 +1,84 @@
-{}
+{
+    "name": "Meal",
+    "type": "object",
+    "properties": {
+      "meal_type": {
+        "type": "string",
+        "enum": [
+          "breakfast",
+          "lunch",
+          "dinner",
+          "snack"
+        ],
+        "description": "Type of meal"
+      },
+      "food_name": {
+        "type": "string",
+        "description": "Name of the food item"
+      },
+      "calories": {
+        "type": "number",
+        "description": "Calories per serving"
+      },
+      "protein": {
+        "type": "number",
+        "description": "Protein content in grams"
+      },
+      "carbs": {
+        "type": "number",
+        "description": "Carbohydrate content in grams"
+      },
+      "fat": {
+        "type": "number",
+        "description": "Fat content in grams"
+      },
+      "serving_size": {
+        "type": "string",
+        "description": "Serving size description"
+      },
+      "meal_date": {
+        "type": "string",
+        "format": "date",
+        "description": "Date of the meal"
+      },
+      "meal_time": {
+        "type": "string",
+        "description": "Time when meal was consumed"
+      },
+      "notes": {
+        "type": "string",
+        "description": "Additional notes about the meal"
+      }
+    },
+    "required": [
+      "meal_type",
+      "food_name",
+      "meal_date"
+    ],
+    "rls": {
+      "read": {
+        "$or": [
+          {
+            "created_by": "{{user.email}}"
+          },
+          {
+            "user_condition": {
+              "role": "admin"
+            }
+          }
+        ]
+      },
+      "write": {
+        "$or": [
+          {
+            "created_by": "{{user.email}}"
+          },
+          {
+            "user_condition": {
+              "role": "admin"
+            }
+          }
+        ]
+      }
+    }
+  }

@@ -1,31 +1,25 @@
+"use client";
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Flame, 
-  Scale,
-  Droplets,
-  TrendingDown,
-  TrendingUp,
-  Footprints
-} from "lucide-react";
+import { Flame, Scale, Droplets, TrendingDown, TrendingUp, Footprints } from "lucide-react";
 
-export default function TodayStats({ 
-  caloriesConsumed = 0, 
+export default function TodayStats({
+  caloriesConsumed = 0,
   calorieGoal = 2000,
   currentWeight,
   startWeight,
   waterConsumed = 0,
   waterGoal = 2000,
   stepsToday = 0,
-  stepsGoal = 10000
+  stepsGoal = 10000,
 }) {
   const calorieProgress = Math.min((caloriesConsumed / calorieGoal) * 100, 100);
   const waterProgress = Math.min((waterConsumed / waterGoal) * 100, 100);
   const stepsProgress = Math.min((stepsToday / stepsGoal) * 100, 100);
 
-  const weightLoss = startWeight && currentWeight ? (startWeight - currentWeight) : 0;
+  const weightLoss = startWeight && currentWeight ? startWeight - currentWeight : 0;
   const weightChange = weightLoss >= 0 ? weightLoss : Math.abs(weightLoss);
   const isWeightLoss = weightLoss >= 0;
 
@@ -33,26 +27,29 @@ export default function TodayStats({
     {
       title: "משקל נוכחי",
       value: currentWeight ? `${currentWeight.toFixed(1)}` : "--",
-      subtitle: currentWeight && startWeight ? (
-        <span className="flex items-center gap-1">
-          {isWeightLoss ? (
-            <>
-              <TrendingDown className="w-3 h-3 text-green-600" />
-              <span className="text-green-600 font-bold">-{weightChange.toFixed(1)} ק"ג</span>
-            </>
-          ) : (
-            <>
-              <TrendingUp className="w-3 h-3 text-orange-600" />
-              <span className="text-orange-600 font-bold">+{weightChange.toFixed(1)} ק"ג</span>
-            </>
-          )}
-        </span>
-      ) : "ק\"ג",
+      subtitle:
+        currentWeight && startWeight ? (
+          <span className="flex items-center gap-1">
+            {isWeightLoss ? (
+              <>
+                <TrendingDown className="w-3 h-3 text-green-600" />
+                <span className="text-green-600 font-bold">-{weightChange.toFixed(1)} ק"ג</span>
+              </>
+            ) : (
+              <>
+                <TrendingUp className="w-3 h-3 text-orange-600" />
+                <span className="text-orange-600 font-bold">+{weightChange.toFixed(1)} ק"ג</span>
+              </>
+            )}
+          </span>
+        ) : (
+          'ק"ג'
+        ),
       progress: currentWeight ? 100 : 0,
       icon: Scale,
       color: "text-blue-600",
       bgColor: "bg-blue-100",
-      ringColor: "ring-blue-200"
+      ringColor: "ring-blue-200",
     },
     {
       title: "קלוריות היום",
@@ -62,7 +59,7 @@ export default function TodayStats({
       icon: Flame,
       color: "text-pink-600",
       bgColor: "bg-pink-100",
-      ringColor: "ring-pink-200"
+      ringColor: "ring-pink-200",
     },
     {
       title: "שתייה",
@@ -72,7 +69,7 @@ export default function TodayStats({
       icon: Droplets,
       color: "text-cyan-600",
       bgColor: "bg-cyan-100",
-      ringColor: "ring-cyan-200"
+      ringColor: "ring-cyan-200",
     },
     {
       title: "צעדים",
@@ -82,15 +79,15 @@ export default function TodayStats({
       icon: Footprints,
       color: "text-green-600",
       bgColor: "bg-green-100",
-      ringColor: "ring-green-200"
-    }
+      ringColor: "ring-green-200",
+    },
   ];
 
   const strokeColor = {
-    'text-blue-600': '#2563eb',
-    'text-pink-600': '#db2777',
-    'text-cyan-600': '#0891b2',
-    'text-green-600': '#16a34a'
+    "text-blue-600": "#2563eb",
+    "text-pink-600": "#db2777",
+    "text-cyan-600": "#0891b2",
+    "text-green-600": "#16a34a",
   };
 
   return (
@@ -101,14 +98,7 @@ export default function TodayStats({
             <div className="flex items-center gap-3">
               <div className="relative w-14 h-14 flex-shrink-0">
                 <svg className="w-full h-full transform -rotate-90">
-                  <circle
-                    cx="28"
-                    cy="28"
-                    r="24"
-                    stroke="#e5e7eb"
-                    strokeWidth="5"
-                    fill="none"
-                  />
+                  <circle cx="28" cy="28" r="24" stroke="#e5e7eb" strokeWidth="5" fill="none" />
                   <circle
                     cx="28"
                     cy="28"
@@ -126,7 +116,7 @@ export default function TodayStats({
                   <stat.icon className={`w-5 h-5 ${stat.color}`} />
                 </div>
               </div>
-              
+
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-bold text-gray-600 truncate">{stat.title}</p>
                 <p className="text-lg font-bold text-gray-900">{stat.value}</p>

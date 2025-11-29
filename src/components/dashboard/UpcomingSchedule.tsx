@@ -1,14 +1,9 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { base44 } from "@/api/base44Client";
-import { 
-  Calendar, 
-  Clock, 
-  Coffee, 
-  Dumbbell,
-  Moon
-} from "lucide-react";
+import { Calendar, Clock, Coffee, Dumbbell, Moon } from "lucide-react";
 import { format, addDays } from "date-fns";
 
 export default function UpcomingSchedule() {
@@ -22,43 +17,43 @@ export default function UpcomingSchedule() {
   const loadUpcomingSchedule = async () => {
     try {
       const user = await base44.auth.me();
-      const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd');
-      const dayAfter = format(addDays(new Date(), 2), 'yyyy-MM-dd');
-      
+      const tomorrow = format(addDays(new Date(), 1), "yyyy-MM-dd");
+      const dayAfter = format(addDays(new Date(), 2), "yyyy-MM-dd");
+
       const [workouts, restDays] = await Promise.all([
-        base44.entities.Workout.filter({ 
+        base44.entities.Workout.filter({
           created_by: user.email,
-          completed: false 
+          completed: false,
         }),
-        base44.entities.RestDay.list("-rest_date", 5)
+        base44.entities.RestDay.list("-rest_date", 5),
       ]);
 
       // Sample upcoming events
       const events = [
         {
-          type: 'meal',
-          title: 'תזכורת לארוחת בוקר',
-          time: '08:00',
-          date: format(new Date(), 'yyyy-MM-dd'),
+          type: "meal",
+          title: "תזכורת לארוחת בוקר",
+          time: "08:00",
+          date: format(new Date(), "yyyy-MM-dd"),
           icon: Coffee,
-          color: 'bg-green-100 text-green-700'
+          color: "bg-green-100 text-green-700",
         },
         {
-          type: 'workout',
-          title: 'אימון בוקר',
-          time: '07:00',
+          type: "workout",
+          title: "אימון בוקר",
+          time: "07:00",
           date: tomorrow,
           icon: Dumbbell,
-          color: 'bg-orange-100 text-orange-700'
+          color: "bg-orange-100 text-orange-700",
         },
         {
-          type: 'meal',
-          title: 'ארוחת ערב בריאה',
-          time: '19:00',
+          type: "meal",
+          title: "ארוחת ערב בריאה",
+          time: "19:00",
           date: tomorrow,
           icon: Moon,
-          color: 'bg-purple-100 text-purple-700'
-        }
+          color: "bg-purple-100 text-purple-700",
+        },
       ];
 
       setUpcomingEvents(events);
@@ -80,9 +75,11 @@ export default function UpcomingSchedule() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3 animate-pulse">
-            {Array(3).fill(0).map((_, i) => (
-              <div key={i} className="h-16 bg-gray-200 rounded-lg"></div>
-            ))}
+            {Array(3)
+              .fill(0)
+              .map((_, i) => (
+                <div key={i} className="h-16 bg-gray-200 rounded-lg"></div>
+              ))}
           </div>
         </CardContent>
       </Card>
@@ -111,7 +108,7 @@ export default function UpcomingSchedule() {
                     <Clock className="w-3 h-3 text-gray-400" />
                     <span className="text-xs text-gray-500">{event.time}</span>
                     <Badge variant="outline" className="text-xs">
-                      {event.date === format(new Date(), 'yyyy-MM-dd') ? 'היום' : format(new Date(event.date), 'dd/MM')}
+                      {event.date === format(new Date(), "yyyy-MM-dd") ? "היום" : format(new Date(event.date), "dd/MM")}
                     </Badge>
                   </div>
                 </div>

@@ -1,1 +1,67 @@
-{}
+{
+    "name": "WorkoutSession",
+    "type": "object",
+    "properties": {
+      "workout_id": {
+        "type": "string",
+        "description": "ID \u05e9\u05dc \u05ea\u05d1\u05e0\u05d9\u05ea \u05d4\u05d0\u05d9\u05de\u05d5\u05df"
+      },
+      "workout_name": {
+        "type": "string",
+        "description": "\u05e9\u05dd \u05d4\u05d0\u05d9\u05de\u05d5\u05df"
+      },
+      "session_date": {
+        "type": "string",
+        "format": "date",
+        "description": "\u05ea\u05d0\u05e8\u05d9\u05da \u05d1\u05d9\u05e6\u05d5\u05e2 \u05d4\u05d0\u05d9\u05de\u05d5\u05df"
+      },
+      "duration_minutes": {
+        "type": "number",
+        "description": "\u05de\u05e9\u05da \u05d4\u05d0\u05d9\u05de\u05d5\u05df \u05d1\u05e4\u05d5\u05e2\u05dc"
+      },
+      "calories_burned": {
+        "type": "number",
+        "description": "\u05e7\u05dc\u05d5\u05e8\u05d9\u05d5\u05ea \u05e9\u05e0\u05e9\u05e8\u05e4\u05d5"
+      },
+      "performance_notes": {
+        "type": "string",
+        "description": "\u05d4\u05e2\u05e8\u05d5\u05ea \u05e2\u05dc \u05d4\u05d1\u05d9\u05e6\u05d5\u05e2"
+      },
+      "completed": {
+        "type": "boolean",
+        "default": true,
+        "description": "\u05d4\u05d0\u05dd \u05d4\u05d0\u05d9\u05de\u05d5\u05df \u05d4\u05d5\u05e9\u05dc\u05dd"
+      }
+    },
+    "required": [
+      "workout_id",
+      "workout_name",
+      "session_date"
+    ],
+    "rls": {
+      "read": {
+        "$or": [
+          {
+            "created_by": "{{user.email}}"
+          },
+          {
+            "user_condition": {
+              "role": "admin"
+            }
+          }
+        ]
+      },
+      "write": {
+        "$or": [
+          {
+            "created_by": "{{user.email}}"
+          },
+          {
+            "user_condition": {
+              "role": "admin"
+            }
+          }
+        ]
+      }
+    }
+  }

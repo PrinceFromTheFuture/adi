@@ -1,48 +1,43 @@
-import React from "react";
+"use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Target, 
-  TrendingUp, 
-  TrendingDown,
-  Minus,
-  Trophy
-} from "lucide-react";
-
-
+import { Target, TrendingUp, TrendingDown, Minus, Trophy } from "lucide-react";
 
 export default function ProgressOverview({ user, recentWeight }) {
   const calculateProgress = () => {
     if (!user?.current_weight || !user?.target_weight) return null;
-    
+
     const start = user.current_weight;
     const target = user.target_weight;
     const current = recentWeight?.weight || user.current_weight;
-    
+
     const totalDistance = Math.abs(target - start);
     const progress = Math.abs(start - current);
     const percentage = Math.min((progress / totalDistance) * 100, 100);
-    
+
     return {
       percentage,
       remaining: Math.abs(target - current),
-      trend: current < start ? 'down' : current > start ? 'up' : 'stable'
+      trend: current < start ? "down" : current > start ? "up" : "stable",
     };
   };
 
   const progress = calculateProgress();
 
   const getTrendIcon = (trend) => {
-    switch(trend) {
-      case 'up': return TrendingUp;
-      case 'down': return TrendingDown;
-      default: return Minus;
+    switch (trend) {
+      case "up":
+        return TrendingUp;
+      case "down":
+        return TrendingDown;
+      default:
+        return Minus;
     }
   };
 
   const getTrendColor = (trend) => {
-    return trend === 'down' ? 'text-green-600' : trend === 'up' ? 'text-orange-600' : 'text-gray-600';
+    return trend === "down" ? "text-green-600" : trend === "up" ? "text-orange-600" : "text-gray-600";
   };
 
   return (
@@ -61,23 +56,17 @@ export default function ProgressOverview({ user, recentWeight }) {
                 <span className="text-sm font-medium text-gray-600">התקדמות למטרה</span>
               </div>
               <Progress value={progress.percentage} className="h-3" />
-              <p className="text-xs text-gray-500">
-                {progress.percentage.toFixed(1)}% מהדרך ליעד
-              </p>
+              <p className="text-xs text-gray-500">{progress.percentage.toFixed(1)}% מהדרך ליעד</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center p-3 bg-gray-50 rounded-lg">
                 <p className="text-sm text-gray-600 mb-1">נוכחי</p>
-                <p className="text-lg font-bold text-gray-900">
-                  {recentWeight?.weight || user.current_weight || '--'} ק"ג
-                </p>
+                <p className="text-lg font-bold text-gray-900">{recentWeight?.weight || user.current_weight || "--"} ק"ג</p>
               </div>
               <div className="text-center p-3 bg-blue-50 rounded-lg">
                 <p className="text-sm text-gray-600 mb-1">יעד</p>
-                <p className="text-lg font-bold text-blue-600">
-                  {user.target_weight || '--'} ק"ג
-                </p>
+                <p className="text-lg font-bold text-blue-600">{user.target_weight || "--"} ק"ג</p>
               </div>
             </div>
 
@@ -87,9 +76,7 @@ export default function ProgressOverview({ user, recentWeight }) {
                 return (
                   <>
                     <TrendIcon className={`w-4 h-4 ${getTrendColor(progress.trend)}`} />
-                    <span className="text-sm font-medium text-gray-700">
-                      עוד {progress.remaining.toFixed(1)} ק"ג ליעד
-                    </span>
+                    <span className="text-sm font-medium text-gray-700">עוד {progress.remaining.toFixed(1)} ק"ג ליעד</span>
                   </>
                 );
               })()}

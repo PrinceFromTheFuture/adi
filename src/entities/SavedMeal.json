@@ -1,1 +1,101 @@
-{}
+{
+    "name": "SavedMeal",
+    "type": "object",
+    "properties": {
+      "meal_name": {
+        "type": "string",
+        "description": "\u05e9\u05dd \u05d4\u05d0\u05e8\u05d5\u05d7\u05d4"
+      },
+      "items": {
+        "type": "array",
+        "description": "\u05e4\u05e8\u05d9\u05d8\u05d9 \u05d4\u05d0\u05e8\u05d5\u05d7\u05d4",
+        "items": {
+          "type": "object",
+          "properties": {
+            "food_item_id": {
+              "type": "string",
+              "description": "\u05de\u05d6\u05d4\u05d4 \u05d4\u05de\u05e0\u05d4"
+            },
+            "food_name": {
+              "type": "string",
+              "description": "\u05e9\u05dd \u05d4\u05de\u05e0\u05d4"
+            },
+            "category": {
+              "type": "string",
+              "description": "\u05e7\u05d8\u05d2\u05d5\u05e8\u05d9\u05d4"
+            },
+            "amount": {
+              "type": "number",
+              "description": "\u05db\u05de\u05d5\u05ea"
+            },
+            "unit_type": {
+              "type": "string",
+              "description": "\u05e1\u05d5\u05d2 \u05d9\u05d7\u05d9\u05d3\u05d4"
+            },
+            "calories": {
+              "type": "number",
+              "description": "\u05e7\u05dc\u05d5\u05e8\u05d9\u05d5\u05ea"
+            },
+            "protein": {
+              "type": "number",
+              "description": "\u05d7\u05dc\u05d1\u05d5\u05df"
+            },
+            "carbs": {
+              "type": "number",
+              "description": "\u05e4\u05d7\u05de\u05d9\u05de\u05d5\u05ea"
+            },
+            "fat": {
+              "type": "number",
+              "description": "\u05e9\u05d5\u05de\u05df"
+            }
+          }
+        }
+      },
+      "total_calories": {
+        "type": "number",
+        "description": "\u05e1\u05da \u05db\u05dc \u05d4\u05e7\u05dc\u05d5\u05e8\u05d9\u05d5\u05ea"
+      },
+      "total_protein": {
+        "type": "number",
+        "description": "\u05e1\u05da \u05db\u05dc \u05d4\u05d7\u05dc\u05d1\u05d5\u05df"
+      },
+      "total_carbs": {
+        "type": "number",
+        "description": "\u05e1\u05da \u05db\u05dc \u05d4\u05e4\u05d7\u05de\u05d9\u05de\u05d5\u05ea"
+      },
+      "total_fat": {
+        "type": "number",
+        "description": "\u05e1\u05da \u05db\u05dc \u05d4\u05e9\u05d5\u05de\u05df"
+      }
+    },
+    "required": [
+      "meal_name",
+      "items"
+    ],
+    "rls": {
+      "read": {
+        "$or": [
+          {
+            "created_by": "{{user.email}}"
+          },
+          {
+            "user_condition": {
+              "role": "admin"
+            }
+          }
+        ]
+      },
+      "write": {
+        "$or": [
+          {
+            "created_by": "{{user.email}}"
+          },
+          {
+            "user_condition": {
+              "role": "admin"
+            }
+          }
+        ]
+      }
+    }
+  }

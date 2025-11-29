@@ -1,1 +1,54 @@
-{}
+{
+  "name": "WeightLog",
+  "type": "object",
+  "properties": {
+    "weight": {
+      "type": "number",
+      "description": "Body weight in kg"
+    },
+    "log_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of weight measurement"
+    },
+    "body_fat_percentage": {
+      "type": "number",
+      "description": "Body fat percentage if measured"
+    },
+    "muscle_mass": {
+      "type": "number",
+      "description": "Muscle mass in kg if measured"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes about the measurement"
+    }
+  },
+  "required": ["weight", "log_date"],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "write": {
+      "$or": [
+        {
+          "created_by": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}
