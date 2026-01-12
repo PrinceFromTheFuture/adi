@@ -62,7 +62,7 @@ export default function Dashboard() {
   }, [loadDashboardData]);
 
   const calculateTodayCalories = () => {
-    return todayMeals.reduce((total, meal) => total + (meal.calories || 0), 0);
+    return todayMeals.reduce((total, meal) => total + Number(meal.calories || 0), 0);
   };
 
   const getMealProgress = () => {

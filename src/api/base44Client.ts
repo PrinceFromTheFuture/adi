@@ -1,157 +1,124 @@
-import { createClient } from "@base44/sdk";
-import {
-  mockUsers,
-  mockSavedMeals,
-  mockFoodItems,
-  mockWorkoutSessions,
-  mockStepsLogs,
-  mockDailyReminders,
-  mockFoodDatabase,
-  mockWaterLogs,
-  mockRestDays,
-  mockWeightLogs,
-  mockWorkouts,
-  mockMeals,
-} from "./mockData";
+// Base44 Client Proxy - Routes all operations to the real database via API
 
 // Type definitions for entity methods
 interface EntityMethods<T> {
   list(sortBy?: string, limit?: number): Promise<T[]>;
-  filter(query: Record<string, any>, sortBy?: string, limit?: number): Promise<T[]>;
+  filter(query: Record<string, unknown>, sortBy?: string, limit?: number): Promise<T[]>;
   create(data: Partial<T>): Promise<T>;
   bulkCreate(dataArray: Partial<T>[]): Promise<T[]>;
   update(id: string, data: Partial<T>): Promise<T>;
   delete(id: string): Promise<void>;
-  schema(): Promise<any>;
+  schema(): Promise<Record<string, unknown>>;
 }
 
-// Base class for entity operations
-class EntityManager<T extends { id?: string }> implements EntityMethods<T> {
-  private data: T[];
-  private entitySchema: any;
-  private entityName: string;
+// API base URL - uses relative path for Next.js API routes
+const API_BASE = "/api/entities";
 
-  constructor(initialData: T[], schema: any, entityName: string) {
-    this.data = [...initialData];
-    this.entitySchema = schema;
+// Base class for entity operations - proxies to API
+class EntityProxy<T extends { id?: string | number }> implements EntityMethods<T> {
+  private entityName: string;
+  private entitySchema: Record<string, unknown>;
+
+  constructor(entityName: string, schema: Record<string, unknown>) {
     this.entityName = entityName;
+    this.entitySchema = schema;
   }
 
   async list(sortBy?: string, limit?: number): Promise<T[]> {
-    let result = [...this.data];
+    const params = new URLSearchParams();
+    if (sortBy) params.set("sortBy", sortBy);
+    if (limit) params.set("limit", limit.toString());
 
-    if (sortBy) {
-      result.sort((a, b) => {
-        const aVal = (a as any)[sortBy];
-        const bVal = (b as any)[sortBy];
-        if (aVal < bVal) return -1;
-        if (aVal > bVal) return 1;
-        return 0;
-      });
+    const url = `${API_BASE}/${this.entityName}${params.toString() ? `?${params.toString()}` : ""}`;
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to list entities");
     }
 
-    if (limit) {
-      result = result.slice(0, limit);
-    }
-
-    return result;
+    return response.json();
   }
 
-  async filter(query: Record<string, any>, sortBy?: string, limit?: number): Promise<T[]> {
-    let result = this.data.filter((item) => {
-      return Object.keys(query).every((key) => {
-        const itemValue = (item as any)[key];
-        const queryValue = query[key];
+  async filter(query: Record<string, unknown>, sortBy?: string, limit?: number): Promise<T[]> {
+    const params = new URLSearchParams();
+    params.set("filter", JSON.stringify(query));
+    if (sortBy) params.set("sortBy", sortBy);
+    if (limit) params.set("limit", limit.toString());
 
-        if (typeof queryValue === "object" && queryValue !== null) {
-          // Handle operators like $gt, $lt, etc.
-          if ("$gt" in queryValue) return itemValue > queryValue.$gt;
-          if ("$gte" in queryValue) return itemValue >= queryValue.$gte;
-          if ("$lt" in queryValue) return itemValue < queryValue.$lt;
-          if ("$lte" in queryValue) return itemValue <= queryValue.$lte;
-          if ("$ne" in queryValue) return itemValue !== queryValue.$ne;
-          if ("$in" in queryValue) return queryValue.$in.includes(itemValue);
-        }
+    const url = `${API_BASE}/${this.entityName}?${params.toString()}`;
+    const response = await fetch(url);
 
-        return itemValue === queryValue;
-      });
-    });
-
-    if (sortBy) {
-      result.sort((a, b) => {
-        const aVal = (a as any)[sortBy];
-        const bVal = (b as any)[sortBy];
-        if (aVal < bVal) return -1;
-        if (aVal > bVal) return 1;
-        return 0;
-      });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to filter entities");
     }
 
-    if (limit) {
-      result = result.slice(0, limit);
-    }
-
-    return result;
+    return response.json();
   }
 
   async create(data: Partial<T>): Promise<T> {
-    const newItem = {
-      ...data,
-      id: `${this.entityName}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    } as unknown as T;
+    const response = await fetch(`${API_BASE}/${this.entityName}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
 
-    this.data.push(newItem);
-    return newItem;
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to create entity");
+    }
+
+    return response.json();
   }
 
   async bulkCreate(dataArray: Partial<T>[]): Promise<T[]> {
-    const newItems = dataArray.map(
-      (data) =>
-        ({
-          ...data,
-          id: `${this.entityName}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }) as unknown
-    ) as T[];
+    const response = await fetch(`${API_BASE}/${this.entityName}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(dataArray),
+    });
 
-    this.data.push(...newItems);
-    return newItems;
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to bulk create entities");
+    }
+
+    return response.json();
   }
 
   async update(id: string, data: Partial<T>): Promise<T> {
-    const index = this.data.findIndex((item) => item.id === id);
-    if (index === -1) {
-      throw new Error(`${this.entityName} with id ${id} not found`);
+    const response = await fetch(`${API_BASE}/${this.entityName}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, ...data }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to update entity");
     }
 
-    this.data[index] = {
-      ...this.data[index],
-      ...data,
-      id, // Preserve the original id
-      updated_at: new Date().toISOString(),
-    };
-
-    return this.data[index];
+    return response.json();
   }
 
   async delete(id: string): Promise<void> {
-    const index = this.data.findIndex((item) => item.id === id);
-    if (index === -1) {
-      throw new Error(`${this.entityName} with id ${id} not found`);
-    }
+    const response = await fetch(`${API_BASE}/${this.entityName}?id=${id}`, {
+      method: "DELETE",
+    });
 
-    this.data.splice(index, 1);
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to delete entity");
+    }
   }
 
-  async schema(): Promise<any> {
+  async schema(): Promise<Record<string, unknown>> {
     return this.entitySchema;
   }
 }
 
-// Entity Schemas
+// Entity Schemas (kept for backwards compatibility with schema() method)
 const userSchema = {
   name: "User",
   type: "object",
@@ -365,44 +332,230 @@ const mealSchema = {
   required: ["meal_type", "food_name", "meal_date"],
 };
 
-// Override auth (commented out as it requires proper AxiosResponse type)
-// base44.auth.me = async () => {
-//   return { id: "fsdf", email: "adi@gmail.com", full_name: "adi", role: "admin" };
-// };
-export const User = new EntityManager(mockUsers, userSchema, "User");
-// Create entity managers
-export const entities = {
-  User: new EntityManager(mockUsers, userSchema, "User"),
-  SavedMeal: new EntityManager(mockSavedMeals, savedMealSchema, "SavedMeal"),
-  FoodItem: new EntityManager(mockFoodItems, foodItemSchema, "FoodItem"),
-  WorkoutSession: new EntityManager(mockWorkoutSessions, workoutSessionSchema, "WorkoutSession"),
-  StepsLog: new EntityManager(mockStepsLogs, stepsLogSchema, "StepsLog"),
-  DailyReminder: new EntityManager(mockDailyReminders, dailyReminderSchema, "DailyReminder"),
-  FoodDatabase: new EntityManager(mockFoodDatabase, foodDatabaseSchema, "FoodDatabase"),
-  WaterLog: new EntityManager(mockWaterLogs, waterLogSchema, "WaterLog"),
-  RestDay: new EntityManager(mockRestDays, restDaySchema, "RestDay"),
-  WeightLog: new EntityManager(mockWeightLogs, weightLogSchema, "WeightLog"),
-  Workout: new EntityManager(mockWorkouts, workoutSchema, "Workout"),
-  Meal: new EntityManager(mockMeals, mealSchema, "Meal"),
+// Type definitions (from mock data structure)
+export type User = {
+  id?: string | number;
+  target_weight: number;
+  current_weight: number;
+  height: number;
+  gender: "male" | "female";
+  activity_level: "sedentary" | "lightly_active" | "moderately_active" | "very_active";
+  profile_image: string;
+  daily_water_goal?: number;
+  created_at?: string;
+  updated_at?: string;
 };
-export const base44 = {
-  entities,
-  auth: {
-    me: async () => {
-      return { id: "fsdf", email: "adi@gmail.com", full_name: "adi", role: "admin" };
-    },
+
+export type SavedMealItem = {
+  food_item_id: string;
+  food_name: string;
+  category: string;
+  amount: number;
+  unit_type: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+};
+
+export type SavedMeal = {
+  id?: string | number;
+  meal_name: string;
+  items: SavedMealItem[];
+  total_calories?: number;
+  total_protein?: number;
+  total_carbs?: number;
+  total_fat?: number;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type FoodItem = {
+  id?: string | number;
+  name: string;
+  category: "protein" | "carb" | "vegetable" | "addition";
+  calories_per_unit: number;
+  protein_per_unit?: number;
+  carbs_per_unit?: number;
+  fat_per_unit?: number;
+  unit_type: "spoon" | "gram" | "piece";
+  default_amount?: number;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type WorkoutSession = {
+  id?: string | number;
+  workout_id: string;
+  workout_name: string;
+  session_date: string;
+  duration_minutes?: number;
+  calories_burned?: number;
+  performance_notes?: string;
+  completed?: boolean;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type StepsLog = {
+  id?: string | number;
+  steps_count: number;
+  log_date: string;
+  distance_km?: number;
+  calories_burned?: number;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type DailyReminder = {
+  id?: string | number;
+  reminder_type: "water" | "meal_planning" | "breakfast" | "lunch" | "dinner" | "snack" | "workout";
+  reminder_time: string;
+  is_active?: boolean;
+  message?: string;
+  days_of_week?: string[];
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type FoodDatabase = {
+  id?: string | number;
+  food_name: string;
+  food_name_english?: string;
+  calories_per_100g: number;
+  protein_per_100g?: number;
+  carbs_per_100g?: number;
+  fat_per_100g?: number;
+  fiber_per_100g?: number;
+  category?: string;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type WaterLog = {
+  id?: string | number;
+  amount_ml: number;
+  log_date: string;
+  log_time?: string;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type RestDay = {
+  id?: string | number;
+  rest_date: string;
+  reason: "scheduled_rest" | "injury" | "illness" | "personal" | "travel";
+  notes?: string;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type WeightLog = {
+  id?: string | number;
+  weight: number;
+  log_date: string;
+  body_fat_percentage?: number;
+  muscle_mass?: number;
+  notes?: string;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type Exercise = {
+  exercise_name: string;
+  sets: number;
+  reps: number;
+  weight: number;
+  rest_time: string;
+  target_muscles: string[];
+  image_url: string;
+};
+
+export type Workout = {
+  id?: string | number;
+  workout_name: string;
+  workout_type?: string;
+  duration_minutes?: number;
+  exercises?: Exercise[];
+  intensity?: string;
+  notes?: string;
+  is_active?: boolean;
+  last_performed?: string;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type Meal = {
+  id?: string | number;
+  meal_type: "breakfast" | "lunch" | "dinner" | "snack";
+  food_name: string;
+  calories?: number;
+  protein?: number;
+  carbs?: number;
+  fat?: number;
+  serving_size?: string;
+  meal_date: string;
+  meal_time?: string;
+  notes?: string;
+  created_at?: string;
+  updated_at?: string;
+};
+
+// File upload handler
+async function uploadFile(options: { file: File }): Promise<{ url: string; filename: string }> {
+  const formData = new FormData();
+  formData.append("file", options.file);
+
+  const response = await fetch("/api/upload", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "Upload failed");
+  }
+
+  return response.json();
+}
+
+// Auth methods
+const auth = {
+  me: async () => {
+    const response = await fetch("/api/auth/me");
+    if (!response.ok) {
+      throw new Error("Failed to get user info");
+    }
+    return response.json();
   },
 };
-// Export types for TypeScript
-export type User = (typeof mockUsers)[0];
-export type SavedMeal = (typeof mockSavedMeals)[0];
-export type FoodItem = (typeof mockFoodItems)[0];
-export type WorkoutSession = (typeof mockWorkoutSessions)[0];
-export type StepsLog = (typeof mockStepsLogs)[0];
-export type DailyReminder = (typeof mockDailyReminders)[0];
-export type FoodDatabase = (typeof mockFoodDatabase)[0];
-export type WaterLog = (typeof mockWaterLogs)[0];
-export type RestDay = (typeof mockRestDays)[0];
-export type WeightLog = (typeof mockWeightLogs)[0];
-export type Workout = (typeof mockWorkouts)[0];
-export type Meal = (typeof mockMeals)[0];
+
+// Core utilities
+const Core = {
+  UploadFile: uploadFile,
+};
+
+// Create entity proxies
+export const User = new EntityProxy<User>("User", userSchema);
+
+export const entities = {
+  User: new EntityProxy<User>("User", userSchema),
+  SavedMeal: new EntityProxy<SavedMeal>("SavedMeal", savedMealSchema),
+  FoodItem: new EntityProxy<FoodItem>("FoodItem", foodItemSchema),
+  WorkoutSession: new EntityProxy<WorkoutSession>("WorkoutSession", workoutSessionSchema),
+  StepsLog: new EntityProxy<StepsLog>("StepsLog", stepsLogSchema),
+  DailyReminder: new EntityProxy<DailyReminder>("DailyReminder", dailyReminderSchema),
+  FoodDatabase: new EntityProxy<FoodDatabase>("FoodDatabase", foodDatabaseSchema),
+  WaterLog: new EntityProxy<WaterLog>("WaterLog", waterLogSchema),
+  RestDay: new EntityProxy<RestDay>("RestDay", restDaySchema),
+  WeightLog: new EntityProxy<WeightLog>("WeightLog", weightLogSchema),
+  Workout: new EntityProxy<Workout>("Workout", workoutSchema),
+  Meal: new EntityProxy<Meal>("Meal", mealSchema),
+};
+
+// Main export - maintains backwards compatibility with base44 SDK interface
+export const base44 = {
+  entities,
+  auth,
+  Core,
+};

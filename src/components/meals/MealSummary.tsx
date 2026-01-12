@@ -11,10 +11,10 @@ import { format, addDays, subDays } from 'date-fns';
 export default function MealSummary({ selectedDate, onDateChange, meals }) {
   const totals = meals.reduce(
     (acc, meal) => {
-      acc.calories += meal.calories || 0;
-      acc.protein += meal.protein || 0;
-      acc.carbs += meal.carbs || 0;
-      acc.fat += meal.fat || 0;
+      acc.calories += Number(meal.calories) || 0;
+      acc.protein += Number(meal.protein) || 0;
+      acc.carbs += Number(meal.carbs) || 0;
+      acc.fat += Number(meal.fat) || 0;
       return acc;
     },
     { calories: 0, protein: 0, carbs: 0, fat: 0 }
@@ -79,7 +79,7 @@ export default function MealSummary({ selectedDate, onDateChange, meals }) {
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <p className="text-2xl font-bold text-gray-900">{totals.calories}</p>
+                <p className="text-2xl font-bold text-gray-900">{Math.round(totals.calories)}</p>
                 <p className="text-xs text-gray-500">מתוך {goals.calories}</p>
               </div>
             </div>
@@ -110,7 +110,7 @@ export default function MealSummary({ selectedDate, onDateChange, meals }) {
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <p className="text-2xl font-bold text-gray-900">{totals.protein}g</p>
+                <p className="text-2xl font-bold text-gray-900">{totals.protein.toFixed(1)}g</p>
                 <p className="text-xs text-gray-500">מתוך {goals.protein}g</p>
               </div>
             </div>
@@ -141,7 +141,7 @@ export default function MealSummary({ selectedDate, onDateChange, meals }) {
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <p className="text-2xl font-bold text-gray-900">{totals.carbs}g</p>
+                <p className="text-2xl font-bold text-gray-900">{totals.carbs.toFixed(1)}g</p>
                 <p className="text-xs text-gray-500">מתוך {goals.carbs}g</p>
               </div>
             </div>
@@ -172,7 +172,7 @@ export default function MealSummary({ selectedDate, onDateChange, meals }) {
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <p className="text-2xl font-bold text-gray-900">{totals.fat}g</p>
+                <p className="text-2xl font-bold text-gray-900">{totals.fat.toFixed(1)}g</p>
                 <p className="text-xs text-gray-500">מתוך {goals.fat}g</p>
               </div>
             </div>

@@ -1,0 +1,1 @@
+we are migrating away from base 44, you goal is to achive whatever the propmt says. this is devlopment you always clear the db and run migrations as you like. the ocmponets in the app were core so we need to strive to not change them

@@ -15,20 +15,24 @@ export default function TodayStats({
   stepsToday = 0,
   stepsGoal = 10000,
 }) {
+  // Convert weight values to numbers (they may come as strings from the database)
+  const currentWeightNum = currentWeight ? Number(currentWeight) : null;
+  const startWeightNum = startWeight ? Number(startWeight) : null;
+
   const calorieProgress = Math.min((caloriesConsumed / calorieGoal) * 100, 100);
   const waterProgress = Math.min((waterConsumed / waterGoal) * 100, 100);
   const stepsProgress = Math.min((stepsToday / stepsGoal) * 100, 100);
 
-  const weightLoss = startWeight && currentWeight ? startWeight - currentWeight : 0;
+  const weightLoss = startWeightNum && currentWeightNum ? startWeightNum - currentWeightNum : 0;
   const weightChange = weightLoss >= 0 ? weightLoss : Math.abs(weightLoss);
   const isWeightLoss = weightLoss >= 0;
 
   const stats = [
     {
       title: "משקל נוכחי",
-      value: currentWeight ? `${currentWeight.toFixed(1)}` : "--",
+      value: currentWeightNum ? `${currentWeightNum.toFixed(1)}` : "--",
       subtitle:
-        currentWeight && startWeight ? (
+        currentWeightNum && startWeightNum ? (
           <span className="flex items-center gap-1">
             {isWeightLoss ? (
               <>
@@ -45,7 +49,7 @@ export default function TodayStats({
         ) : (
           'ק"ג'
         ),
-      progress: currentWeight ? 100 : 0,
+      progress: currentWeightNum ? 100 : 0,
       icon: Scale,
       color: "text-blue-600",
       bgColor: "bg-blue-100",
@@ -53,7 +57,7 @@ export default function TodayStats({
     },
     {
       title: "קלוריות היום",
-      value: `${caloriesConsumed}`,
+      value: `${Math.round(Number(caloriesConsumed))}`,
       subtitle: `/ ${calorieGoal}`,
       progress: calorieProgress,
       icon: Flame,

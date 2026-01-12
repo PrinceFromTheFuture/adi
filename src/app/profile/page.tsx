@@ -5,7 +5,6 @@ import ProfileHeader from "@/components/profile/ProfileHeader";
 import ProfileView from "@/components/profile/ProfileView";
 import ProfileForm from "@/components/profile/ProfileForm";
 import { Skeleton } from "@/components/ui/skeleton";
-import { User } from "@/api/base44Client";
 
 export default function ProfilePage() {
   const [user, setUser] = useState(null);
@@ -16,7 +15,11 @@ export default function ProfilePage() {
   const fetchUser = useCallback(async () => {
     setIsLoading(true);
     try {
-      const currentUser = await User.me();
+      const response = await fetch('/api/auth/me');
+      if (!response.ok) {
+        throw new Error('Failed to fetch user data');
+      }
+      const currentUser = await response.json();
       setUser(currentUser);
     } catch (error) {
       console.error("Failed to fetch user data:", error);
@@ -35,7 +38,17 @@ export default function ProfilePage() {
     try {
       // Filter out non-updatable fields just in case
       const { id, email, full_name, role, ...updatableData } = formData;
-      await User.updateMyUserData(updatableData);
+      
+      const response = await fetch('/api/auth/me', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatableData),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update profile');
+      }
+      
       // Refetch user to show updated data
       await fetchUser();
       setIsEditing(false);

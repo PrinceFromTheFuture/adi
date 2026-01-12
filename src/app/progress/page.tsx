@@ -70,9 +70,9 @@ export default function ProgressPage() {
     }
   };
 
-  const currentWeight = weightLogs.length > 0 ? weightLogs[0].weight : null;
-  const startWeight = weightLogs.length > 0 ? weightLogs[weightLogs.length - 1].weight : null;
-  const target = user?.target_weight;
+  const currentWeight = weightLogs.length > 0 ? Number(weightLogs[0].weight) : null;
+  const startWeight = weightLogs.length > 0 ? Number(weightLogs[weightLogs.length - 1].weight) : null;
+  const target = user?.target_weight ? Number(user.target_weight) : null;
 
   const weightLoss = startWeight && currentWeight ? startWeight - currentWeight : 0;
   const remainingWeight = target && currentWeight ? Math.abs(currentWeight - target) : 0;
@@ -95,7 +95,7 @@ export default function ProgressPage() {
         return logDate >= weekStartDate && logDate <= weekEndDate;
       });
 
-      const avgWeight = logsInWeek.length > 0 ? logsInWeek.reduce((sum, log) => sum + log.weight, 0) / logsInWeek.length : null;
+      const avgWeight = logsInWeek.length > 0 ? logsInWeek.reduce((sum, log) => sum + Number(log.weight), 0) / logsInWeek.length : null;
 
       return {
         week: format(weekStartDate, "dd/MM"),
@@ -347,8 +347,8 @@ export default function ProgressPage() {
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 <AnimatePresence>
                   {weightLogs.map((log, index) => {
-                    const prevWeight = index < weightLogs.length - 1 ? weightLogs[index + 1].weight : log.weight;
-                    const change = log.weight - prevWeight;
+                    const prevWeight = index < weightLogs.length - 1 ? Number(weightLogs[index + 1].weight) : Number(log.weight);
+                    const change = Number(log.weight) - prevWeight;
 
                     return (
                       <motion.div
@@ -364,7 +364,7 @@ export default function ProgressPage() {
                             <Scale className="w-6 h-6 text-white" />
                           </div>
                           <div>
-                            <p className="font-bold text-xl text-gray-900">{log.weight.toFixed(1)} ק"ג</p>
+                            <p className="font-bold text-xl text-gray-900">{Number(log.weight).toFixed(1)} ק"ג</p>
                             <p className="text-sm text-gray-600">{format(new Date(log.log_date), "dd/MM/yyyy")}</p>
                           </div>
                         </div>

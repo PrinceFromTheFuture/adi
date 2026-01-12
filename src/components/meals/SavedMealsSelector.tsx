@@ -62,16 +62,16 @@ export default function SavedMealsSelector({ onSelectMeal, onClose }) {
                       <h4 className="font-bold text-lg text-gray-900">{meal.meal_name}</h4>
                       <div className="flex flex-wrap gap-2 mt-2">
                         <Badge className="bg-orange-500 text-white">
-                          {meal.total_calories?.toFixed(0)} קל'
+                          {Number(meal.total_calories || 0).toFixed(0)} קל'
                         </Badge>
                         <Badge className="bg-blue-500 text-white">
-                          {meal.total_protein?.toFixed(1)}g חלבון
+                          {Number(meal.total_protein || 0).toFixed(1)}g חלבון
                         </Badge>
                         <Badge className="bg-green-500 text-white">
-                          {meal.total_carbs?.toFixed(1)}g פחמ'
+                          {Number(meal.total_carbs || 0).toFixed(1)}g פחמ'
                         </Badge>
                         <Badge className="bg-purple-500 text-white">
-                          {meal.total_fat?.toFixed(1)}g שומן
+                          {Number(meal.total_fat || 0).toFixed(1)}g שומן
                         </Badge>
                       </div>
                       <p className="text-xs text-gray-600 mt-2">

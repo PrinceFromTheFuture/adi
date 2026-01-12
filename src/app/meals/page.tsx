@@ -51,10 +51,12 @@ export default function Meals() {
       if (editingMeal) {
         await base44.entities.Meal.update(editingMeal.id, mealData);
       } else {
+        const user = await base44.auth.me();
         await base44.entities.Meal.create({
           ...mealData,
           meal_date: selectedDate,
           meal_type: activeMealType,
+          created_by: user.email,
         });
       }
       setShowForm(false);
@@ -82,6 +84,7 @@ export default function Meals() {
 
   const handleSaveMealBuilder = async (mealData, mealType) => {
     try {
+      const user = await base44.auth.me();
       await base44.entities.Meal.create({
         meal_type: mealType,
         food_name: mealData.meal_name,
@@ -91,6 +94,7 @@ export default function Meals() {
         fat: mealData.total_fat,
         meal_date: selectedDate,
         serving_size: `${mealData.items.length} מרכיבים`,
+        created_by: user.email,
       });
       setShowMealBuilder(false);
       loadMeals();
@@ -101,6 +105,7 @@ export default function Meals() {
 
   const handleSelectSavedMeal = async (savedMeal) => {
     try {
+      const user = await base44.auth.me();
       await base44.entities.Meal.create({
         meal_type: activeMealType,
         food_name: savedMeal.meal_name,
@@ -110,6 +115,7 @@ export default function Meals() {
         fat: savedMeal.total_fat,
         meal_date: selectedDate,
         serving_size: `${savedMeal.items.length} מרכיבים`,
+        created_by: user.email,
       });
       setShowSavedMeals(false);
       loadMeals();
